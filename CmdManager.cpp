@@ -169,6 +169,10 @@ void CCmdManager::boardViewPort()
 	AcGeMatrix3d	mat;
 	mat.setToTranslation(AcGeVector3d(-10000,-10000,0));
 	cloneBoard.TransformBy(mat);
+	AcGePoint3d	ptOrg = cloneBoard.GetPosition();
+
+	AcDbMText	*pMText = CommonUtilFun::MakeMText(_T("技术要求："),_T("仿宋体"),ptOrg,20,300,0,2,AcDbMText::kMiddleCenter,_T("0"));
+	DbUtil.addToModelSpace(pMText);
 
 	ads_command(RTSTR,_T("PSPACE"),0);
 	double	Totalx = 1200;
@@ -256,12 +260,37 @@ void CCmdManager::boardViewPort()
 		vp->getAcDbHandle(arxHandle);
 		vp->setVisibility(AcDb::kInvisible,Adesk::kTrue);
 		vp->getGeomExtents(extents);
+		vp->setOff();
 		//arxHandle.getIntoAsciiBuffer(pdata->VpHandle);
 		vp->close();
 	}
 	ads_name	ent;
 	acdbGetAdsName(ent, EntId);
 	CommonUtilFun::AgainRestoreVportOriginZoom(ent,TRUE);
+	if(acdbOpenObject(vp, ObjId, AcDb::kForWrite)==Acad::eOk)
+	{
+		AcDbExtents extents;
+		vp->setViewDirection(AcGeVector3d(0,0,1));
+		AcDbHandle	arxHandle;
+		vp->getAcDbHandle(arxHandle);
+		vp->setVisibility(AcDb::kVisible,Adesk::kTrue);
+		vp->getGeomExtents(extents);
+		vp->setOn();
+		//arxHandle.getIntoAsciiBuffer(pdata->VpHandle);
+		vp->close();
+	}
+	ads_command(RTSTR,_T("mspace"),0);
+	AcGePoint3d	maxpt,minpt;
+	CommonUtilFun::GetEntityMaxMinPoint(cloneBoard.GetId(),maxpt,minpt);
+	AcDbExtents	extents;
+	extents.addPoint(maxpt);
+	extents.addPoint(minpt);
+	extents.expandBy(AcGeVector3d(200,200,200));
+	extents.expandBy(AcGeVector3d(-200,-200,-200));
+	maxpt = extents.maxPoint();
+	minpt = extents.minPoint();
+	ads_command(RTSTR,_T("ZOOM"),RTSTR,_T("W"),RT3DPOINT,asDblArray(minpt),RT3DPOINT,asDblArray(maxpt),0);
+	ads_command(RTSTR,_T("PSPACE"),0);
 	AcGePoint3d ptorg;
 	ptorg[0]=0.0;
 	ptorg[1]=0.0;
@@ -271,19 +300,42 @@ void CCmdManager::boardViewPort()
 	ptmax[0]=ptorg[0]+297;
 	ptmax[1]=ptorg[1]+210+1*20;
 	ptmax[2]=0.0;
-	//ads_command(RTSTR,_T("zoom"),RT3DPOINT,ptorg,RT3DPOINT,ptmax,0);
-	////ads_command(RTSTR,_T("ZOOM"),RTSTR,_T("W"),RT3DPOINT,asDblArray(ptorg),RT3DPOINT,asDblArray(ptmax),0);
-	//AcDbVoidPtrArray ents;
-	////标题文字
-	//AcGePoint3d textInsertPt=ptorg+AcGeVector3d(100,100,0);
-	//AcDbMText*	pText = CommonUtilFun::MakeMText(_T("测试零件图"),_T("FDS_TEXT"),textInsertPt,20,18,0,1,AcDbMText::kMiddleCenter,_T("0"));
-	//ents.append(pText);
+	
+	//AcDbObjectId layerId = AcDbObjectId::kNull;
+	//AcDbLayerTable* pLayerTable;
+	//if(acdbCurDwg()->getLayerTable(pLayerTable,AcDb::kForRead) == Acad::eOk)
+	//{
+	//	if (pLayerTable->has(_T("0")))
+	//	{
+	//		pLayerTable->getAt(_T("0"),layerId);
+	//	}
 
-	//ads_command(RTSTR,_T("pspace"),RTNONE);
-	//CommonUtilFun::HideWorkViewport();
-	//AcDbObjectId	idVp;
-	//AcDbExtents	extents;
-	//cloneBoard.GetBoardExtent(extents);
-	//CommonUtilFun::AddViewPortToPS(extents,AcGeVector3d(0,0,1),AcGePoint3d(0,0,0),200,300,idVp,_T("0"));
-	//ads_command(RTSTR,_T("ZOOM"),RTSTR,_T("W"),RT3DPOINT,ptorg,RT3DPOINT,ptmax,0);
+	//	pLayerTable->close();
+	//}
+
+	//AcDbBlockTable* pBlockTbl;
+	//if(acdbCurDwg()->getBlockTable(pBlockTbl,AcDb::kForRead) == Acad::eOk)
+	//{
+	//	AcDbBlockTableRecord* pBlockTableRec;
+	//	pBlockTbl->getAt(ACDB_PAPER_SPACE,pBlockTableRec,AcDb::kForRead);
+	//	pBlockTbl->close();
+
+	//	AcDbBlockTableRecordIterator* pLtr;
+	//	pBlockTableRec->newIterator(pLtr);
+	//	AcDbEntity* pEnt;
+	//	for (pLtr->start();!pLtr->done();pLtr->step())
+	//	{
+	//		pLtr->getEntity(pEnt,AcDb::kForWrite);
+
+	//		if (pEnt->layerId() == layerId && pEnt->isKindOf(AcDbViewport::desc())) //位于图层DWGFRAMELAYER上，且是视口
+	//		{
+	//			pEnt->setVisibility(AcDb::kVisible);
+	//		}
+
+	//		pEnt->close();
+	//	}
+
+	//	delete pLtr;
+	//	pBlockTableRec->close();
+	//}
 }
