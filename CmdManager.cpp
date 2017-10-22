@@ -300,42 +300,4 @@ void CCmdManager::boardViewPort()
 	ptmax[0]=ptorg[0]+297;
 	ptmax[1]=ptorg[1]+210+1*20;
 	ptmax[2]=0.0;
-	
-	//AcDbObjectId layerId = AcDbObjectId::kNull;
-	//AcDbLayerTable* pLayerTable;
-	//if(acdbCurDwg()->getLayerTable(pLayerTable,AcDb::kForRead) == Acad::eOk)
-	//{
-	//	if (pLayerTable->has(_T("0")))
-	//	{
-	//		pLayerTable->getAt(_T("0"),layerId);
-	//	}
-
-	//	pLayerTable->close();
-	//}
-
-	//AcDbBlockTable* pBlockTbl;
-	//if(acdbCurDwg()->getBlockTable(pBlockTbl,AcDb::kForRead) == Acad::eOk)
-	//{
-	//	AcDbBlockTableRecord* pBlockTableRec;
-	//	pBlockTbl->getAt(ACDB_PAPER_SPACE,pBlockTableRec,AcDb::kForRead);
-	//	pBlockTbl->close();
-
-	//	AcDbBlockTableRecordIterator* pLtr;
-	//	pBlockTableRec->newIterator(pLtr);
-	//	AcDbEntity* pEnt;
-	//	for (pLtr->start();!pLtr->done();pLtr->step())
-	//	{
-	//		pLtr->getEntity(pEnt,AcDb::kForWrite);
-
-	//		if (pEnt->layerId() == layerId && pEnt->isKindOf(AcDbViewport::desc())) //位于图层DWGFRAMELAYER上，且是视口
-	//		{
-	//			pEnt->setVisibility(AcDb::kVisible);
-	//		}
-
-	//		pEnt->close();
-	//	}
-
-	//	delete pLtr;
-	//	pBlockTableRec->close();
-	//}
 }
