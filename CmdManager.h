@@ -13,5 +13,6 @@ public:
 	static void arxHighlight();
 	static void setBoardUCS();
 	static void boardViewPort();
+	static void boardReport();
 };
 

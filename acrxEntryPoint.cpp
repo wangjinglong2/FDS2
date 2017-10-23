@@ -38,6 +38,8 @@ void RegisterCommand()
 	cmdStack->addCommand(_T("Design"),_T("arxhighlight"),_T("arxhighlight"),ACRX_CMD_MODAL,&CCmdManager::arxHighlight);
 	cmdStack->addCommand(_T("Design"),_T("setboarducs"),_T("setboarducs"),ACRX_CMD_MODAL,&CCmdManager::setBoardUCS);
 	cmdStack->addCommand(_T("Design"),_T("boardviewport"),_T("boardviewport"),ACRX_CMD_MODAL,&CCmdManager::boardViewPort);
+	cmdStack->addCommand(_T("Design"),_T("boardreport"),_T("boardreport"),ACRX_CMD_MODAL,&CCmdManager::boardReport);
+
 }
 void unRegisterCommand()
 {

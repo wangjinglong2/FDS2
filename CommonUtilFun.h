@@ -26,5 +26,6 @@ public:
 	static AcDbObjectId CreateViewport(const AcGePoint3d& Position, double Width, double Height, int SetActive, const TCHAR* Layer);
 	static void AgainRestoreVportOriginZoom(const ads_name Set,BOOL isZoom);
 	static BOOL GetEntityMaxMinPoint(const AcDbObjectId &objId,AcGePoint3d &maxPoint,AcGePoint3d &minPoint);
+	static BOOL fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,AcDbObjectIdArray& idPartArray);
 };
 

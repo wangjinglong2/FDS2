@@ -648,3 +648,60 @@ BOOL CommonUtilFun::GetEntityMaxMinPoint(const AcDbObjectId &objId,AcGePoint3d &
 
 	return state;
 }
+BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,AcDbObjectIdArray& idPartArray)
+{
+	CString	sObjName;
+	if (ssType == Fds::SS_FURNITUREPART)
+		sObjName = _T("FurniturePart");
+	else if (ssType == Fds::SS_BOARD)
+		sObjName = _T("Board");
+	else if (ssType == Fds::SS_HARDWARE)
+		sObjName = _T("HardWare");
+
+	struct resbuf *rbGetObject=NULL;
+	AcDbObjectId Id;
+	ads_name ss;
+	int	iRet = acedSSGet(NULL,NULL,NULL,NULL,ss);
+	if (iRet != RTNORM)
+		return FALSE;
+	long	nCount = 0;
+	iRet = acedSSLength(ss,&nCount);
+	if (iRet != RTNORM)
+	{
+		acedSSFree(ss);
+		return FALSE;
+	}
+	for (long i = 0;i < nCount; i ++)
+	{
+		ads_name	ent;
+		acedSSName(ss,i,ent);
+		struct resbuf *apps=NULL; 
+		apps=acutBuildList(RTSTR,_T("Fur_Design"),RTNONE);
+		rbGetObject=acdbEntGetX(ent,apps);
+		acutRelRb(apps);
+		struct resbuf *rbTemp = rbGetObject;
+		BOOL bFind = FALSE;
+		while (rbTemp)
+		{
+			if(rbTemp->restype==1000)
+			{
+				if(_tcscmp(rbTemp->resval.rstring,sObjName)==0)
+				{
+					bFind=TRUE;
+					break;
+				}
+			}
+			rbTemp=rbTemp->rbnext;
+		}
+		if(!bFind)
+		{
+			ads_ssfree(ent);
+			continue;
+		}
+		acdbGetObjectId(Id,ent);
+		idPartArray.append(Id);
+		ads_ssfree(ent);
+	}
+	ads_ssfree(ss);
+	return TRUE;
+}
