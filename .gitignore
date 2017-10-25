@@ -1,3 +1,5 @@
 Debug/
 *.suo
 *.sdf
+template/
+*.opensdf

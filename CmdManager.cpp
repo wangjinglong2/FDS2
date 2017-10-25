@@ -310,11 +310,14 @@ void CCmdManager::boardReport()
 	MSExcelBooster	excel;
 	excel.set_Visible(true);
 	excel.set_QuitFlag(true);
-	if (!excel.InitExcelCOM(false))
+	if (!excel.InitExcelCOM())
 		return;
-	excel.OpenOneWorkSheets(_T("E:\\WSoftWare_Develop\\FDS2\\template\\testtmpl.xlt"));
+	
+	//excel.OpenOneWorkSheets(_T("E:\\WSoftWare_Develop\\FDS2\\template\\testtmpl.xlt"));
+	excel.OpenExcelBook(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlt"));
 	excel.SetCurWorkSheet(1);
 	excel.MoveTo(1,1);
-	excel <<1<<2<<3<<4<<5;
-	excel.ReleaseExcelCom();
+	excel <<1<<2<<3<<4<<5<<endl;
+	excel <<1<<2<<3<<4<<5<<endl;
+	excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
 }

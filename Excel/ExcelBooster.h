@@ -79,7 +79,7 @@ class MSExcelBooster : public ExcelBoosterBase
 {
 public:
 	//	将光标转到指定表格单元
-	void MoveTo(const long nRowIndex,const long nColunIndex);
+	BOOL MoveTo(const long nRowIndex,const long nColunIndex);
 
 	//	转到下一列表格单元
 	void NextColumn();
@@ -89,6 +89,7 @@ public:
 	MSExcelBooster &operator<<(const short value);
 	MSExcelBooster &operator<<(const double value);
 	MSExcelBooster &operator<<(const TCHAR *sValue);
+	MSExcelBooster &operator<<( const CString& sValue);
 	MSExcelBooster &operator>>(int &value);
 	MSExcelBooster &operator>>(long &value);
 	MSExcelBooster &operator>>(short &value);
@@ -96,7 +97,9 @@ public:
 	MSExcelBooster &operator>>(TCHAR *sValue);
 	MSExcelBooster &operator>>(CString &sValue);
 
-	MSExcelBooster& endl(MSExcelBooster &excel);
+	MSExcelBooster& operator << (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
+	MSExcelBooster& operator >> (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
+	friend MSExcelBooster& endl(MSExcelBooster &excel);
 
 	//MSExcelBooster& operator << (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
 	//MSExcelBooster& operator >> (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
@@ -108,15 +111,26 @@ public:
 	virtual ~MSExcelBooster();
 
 	//	返回值：-1：没有初始化COM!; 0：没有安装Excel2000!; 1：初始化成功。
-	BOOL InitExcelCOM(bool bNewOneWorkSheets = true);
+	BOOL InitExcelCOM();
 
-	//	释放COM对象
-	void ReleaseExcelCom();
-
-	void OpenOneWorkSheets(CString sFileName);
-
+	////	释放COM对象
+	//void ReleaseExcelCom();
+	BOOL OpenExcelBook(CString sFileName);
+	//void OpenOneWorkSheets(CString sFileName);
+	BOOL NewExcelBook();
+	BOOL OpenExcelApp();
 	//	设定当前表页
 	BOOL SetCurWorkSheet(int nCurSheet);
+	BOOL SaveExcel();
+	BOOL SaveAsExcel(CString sFileName);
+	BOOL SetCellValue(int row, int col,CString sValue,int Align=1);
+	CString GetCellValue(int row, int col);
+	BOOL SetRowHeight(int row, CString height);
+	CString GetRowHeight(int row);
+	BOOL SetColumnWidth(int col,CString width);
+	CString GetColumnWidth(int col);
+	CString GetCellPos( int row, int col );
+
 	////	设定当前表页，并且修改表页名称为指定名称
 	//BOOL SetCurWorkSheet(const TCHAR *sSheetName,int nCurSheet);
 	////  将指定表页名称的页面设为当前页面
@@ -318,11 +332,14 @@ public:
 
 protected:
 
-	MSExcel::_Application m_Excel;    
+	MSExcel::_Application m_application;    
 	MSExcel::Workbooks m_workbooks;   
 	MSExcel::_Workbook m_workbook;    
 	MSExcel::Worksheets m_worksheets;   
 	MSExcel::_Worksheet m_worksheet; 
+	MSExcel::Range m_range;  
+	MSExcel::Range m_cell;  
+	MSExcel::Font m_font;  
 
 //public:
 //	static CString g_OleXlsApp;

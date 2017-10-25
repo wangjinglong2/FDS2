@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Excel">
+      <UniqueIdentifier>{e975b308-e926-4ea3-8a5a-6d4654c9352a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -47,6 +50,33 @@
     </ClCompile>
     <ClCompile Include="Board.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\excel9.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\ExcelBooster.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDExcelApp.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDIDispath.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDRange.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDSheet.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDSheets.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDWorkbook.cpp">
+      <Filter>Excel</Filter>
+    </ClCompile>
+    <ClCompile Include="Excel\UDWorkbooks.cpp">
+      <Filter>Excel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +118,36 @@
     </ClInclude>
     <ClInclude Include="Board.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\excel9.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\ExcelBooster.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDExcelApp.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDIDispath.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDRange.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDSheet.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDSheets.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDTool.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDWorkbook.h">
+      <Filter>Excel</Filter>
+    </ClInclude>
+    <ClInclude Include="Excel\UDWorkbooks.h">
+      <Filter>Excel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

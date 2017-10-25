@@ -1,325 +1,267 @@
 #include "StdAfx.h"
 #include "ExcelBooster.h"
 
+COleVariant covOptional((long)DISP_E_PARAMNOTFOUND, VT_ERROR);  
 
 MSExcelBooster::MSExcelBooster()
 {
-	CoInitialize(NULL);
 }
 
 MSExcelBooster::~MSExcelBooster()
 {
-	m_Excel.ReleaseDispatch();
-	CoUninitialize();
+	m_workbooks.ReleaseDispatch();  
+	m_workbook.ReleaseDispatch();  
+	m_worksheets.ReleaseDispatch();  
+	m_worksheet.ReleaseDispatch();  
+	m_range.ReleaseDispatch();  
+	m_font.ReleaseDispatch();  
+	m_cell.ReleaseDispatch();  
+	m_application.Quit();  
+	m_application.ReleaseDispatch();  
+	::CoUninitialize(); 
 }
 
-BOOL MSExcelBooster::InitExcelCOM( bool bNewOneWorkSheets /*= true*/ )
+BOOL MSExcelBooster::InitExcelCOM()
 {
-	CLSID clsid;
-	CLSIDFromProgID(L"Excel.Application", &clsid);  
-	IUnknown *pUnk = NULL;
-	IDispatch *pDisp = NULL;
-
-	HRESULT hr = CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER, IID_IDispatch, (void **)&pDisp);
-	if(FAILED(hr))
-	{ 		
-		MessageBox(0, _T("请检查是否已经安装EXCEL！"), _T(""), MB_OK);
-		return 0;
-	}
-	//HRESULT hr = GetActiveObject(clsid, NULL, (IUnknown**)&pUnk);
-	//if(SUCCEEDED(hr)) 
-	//{
-	//	hr = pUnk->QueryInterface(IID_IDispatch, (void **)&pDisp);
-	//}
-	//if (!pDisp)
-	//{
-	//	return FALSE;
-	//}
-	//if (pUnk) 
-	//	pUnk->Release();
-
-	m_Excel.AttachDispatch(pDisp);
-
-	//创建Excel 2000服务器(启动Excel)
-	//if(!m_Excel.CreateDispatch(_T("Excel.Application"))) 
-	//{
-	//	AfxMessageBox(_T("无法启动Excel服务器!"));
-	//	return FALSE;
-	//}
-	m_workbooks.AttachDispatch(m_Excel.GetWorkbooks());
+	if (::CoInitialize( NULL ) == E_INVALIDARG)   
+	{   
+		AfxMessageBox(_T("初始化Com失败!"));   
+		return FALSE;  
+	}  
+	if( !m_application.CreateDispatch(_T("Excel.Application")) )  
+	{  
+		AfxMessageBox(_T("无法创建Excel应用！"));  
+		return FALSE;  
+	} 
 	return TRUE;
 }
 
-void MSExcelBooster::ReleaseExcelCom()
+BOOL MSExcelBooster::OpenExcelBook( CString sFileName )
 {
-	m_Excel.ReleaseDispatch();
-	CoUninitialize();
+	CFileFind filefind;   
+	if( !filefind.FindFile(sFileName) )   
+	{   
+		AfxMessageBox(_T("文件不存在"));  
+		return TRUE;  
+	}  
+	LPDISPATCH lpDisp; //接口指针  
+	m_workbooks=m_application.GetWorkbooks();  
+	lpDisp = m_workbooks.Open(sFileName,      
+		covOptional, covOptional, covOptional, covOptional, covOptional,
+		covOptional, covOptional, covOptional, covOptional, covOptional,
+		covOptional, covOptional );                 
+	m_workbook.AttachDispatch(lpDisp);  
+	m_worksheets=m_workbook.GetSheets();  
+	m_worksheet=m_worksheets.GetItem(COleVariant((short)1));   
+	return TRUE;  
 }
 
-void MSExcelBooster::OpenOneWorkSheets( CString sFileName )
+BOOL MSExcelBooster::NewExcelBook()
 {
-	try
-	{
-		LPDISPATCH lpDisp;
-		const COleVariant covOptional((long)DISP_E_PARAMNOTFOUND, VT_ERROR); 
-		lpDisp = m_workbooks.Open(sFileName,      
-			covOptional, covOptional, covOptional, covOptional, covOptional,
-			covOptional, covOptional, covOptional, covOptional, covOptional,
-			covOptional, covOptional );
-		m_workbook.AttachDispatch(lpDisp);
-	}
-	catch (COleDispatchException *e)
-	{
-		e->ReportError();
-		return;
-	}
+	m_workbooks=m_application.GetWorkbooks();  
+	m_workbook=m_workbooks.Add(covOptional);  
+	m_worksheets=m_workbook.GetSheets();  
+	m_worksheet=m_worksheets.GetItem(COleVariant((short)1));
+	return TRUE;
 }
+
+BOOL MSExcelBooster::OpenExcelApp()
+{
+	m_application.SetVisible(TRUE);  
+	m_application.SetUserControl(TRUE);  
+	return TRUE;
+}
+
+BOOL MSExcelBooster::SaveExcel()  
+{  
+	m_workbook.SetSaved(TRUE);  
+	return TRUE;
+}
+
+BOOL MSExcelBooster::SaveAsExcel(CString sFileName)  
+{  
+	m_workbook.SaveAs(COleVariant(sFileName),covOptional,covOptional,covOptional,
+		covOptional,covOptional,0,covOptional,covOptional,covOptional,covOptional);
+	return TRUE;
+} 
+
+BOOL MSExcelBooster::SetCellValue(int row, int col,CString sValue,int Align)  
+{  
+	m_range=m_worksheet.GetRange(COleVariant(GetCellPos(row,col)),COleVariant(GetCellPos(row,col)));  
+	m_range.SetValue2(COleVariant(sValue));  
+	m_cell.AttachDispatch((m_range.GetItem (COleVariant(long(1)), COleVariant(long(1)))).pdispVal);  
+	m_cell.SetHorizontalAlignment(COleVariant((short)Align)); 
+	return TRUE;
+}  
+
+CString MSExcelBooster::GetCellValue(int row, int col)  
+{  
+	m_range=m_worksheet.GetRange(COleVariant(GetCellPos(row,col)),COleVariant(GetCellPos(row,col)));  
+	COleVariant rValue;  
+	rValue=COleVariant(m_range.GetValue2());  
+	rValue.ChangeType(VT_BSTR);  
+	return CString(rValue.bstrVal);  
+} 
+
+BOOL MSExcelBooster::SetRowHeight(int row, CString height)  
+{  
+	int col = 1;  
+	m_range=m_worksheet.GetRange(COleVariant(GetCellPos(row,col)),COleVariant(GetCellPos(row,col)));  
+	m_range.SetRowHeight(COleVariant(height)); 
+	return TRUE;
+} 
+
+CString MSExcelBooster::GetRowHeight(int row)  
+{  
+	int col = 1;  
+	m_range=m_worksheet.GetRange(COleVariant(GetCellPos(row,col)),COleVariant(GetCellPos(row,col)));  
+	VARIANT height = m_range.GetRowHeight();  
+	CString strheight;  
+	strheight = height;  
+	return strheight;  
+} 
+
+BOOL MSExcelBooster::SetColumnWidth(int col,CString width)  
+{  
+	int row = 1;  
+	m_range=m_worksheet.GetRange(COleVariant(GetCellPos(row,col)),COleVariant(GetCellPos(row,col)));  
+	m_range.SetColumnWidth(COleVariant(width));  
+	return TRUE;
+} 
+
+CString MSExcelBooster::GetColumnWidth(int col)  
+{  
+	int row = 1;  
+	m_range=m_worksheet.GetRange(COleVariant(GetCellPos(row,col)),COleVariant(GetCellPos(row,col)));  
+	VARIANT width = m_range.GetColumnWidth();  
+	CString strwidth;  
+	strwidth = width;  
+	return strwidth;  
+} 
+
+CString MSExcelBooster::GetCellPos( int row, int col )   
+{   
+	CString strResult;  
+	if( col > 26 )   
+	{   
+		strResult.Format(_T("%c%c%d"),'A' + (col-1)/26-1,'A' + (col-1)%26,row);  
+	}   
+	else   
+	{   
+		strResult.Format(_T("%c%d"), 'A' + (col-1)%26,row);  
+	}   
+	return strResult;  
+} 
 
 BOOL MSExcelBooster::SetCurWorkSheet( int nCurSheet )
 {
-	m_worksheets.AttachDispatch(m_workbook.GetWorksheets());
-	try
-	{
-		COleVariant ole((short)nCurSheet);
-		m_worksheet.AttachDispatch(m_worksheets.GetItem(ole));
-	}
-	catch (COleDispatchException *e)
-	{
-		e->ReportError();
-		return FALSE;
-	}
+	m_worksheet=m_worksheets.GetItem(COleVariant((short)nCurSheet));
 	m_worksheet.Activate();
 	return TRUE;
 }
 
-void MSExcelBooster::MoveTo( const long nRowIndex,const long nColunIndex )
+BOOL MSExcelBooster::MoveTo( const long nRowIndex,const long nColunIndex )
 {
 	if (nRowIndex<=0 || nColunIndex<=0)
 	{
-		return;
+		return FALSE;
 	}
-	int nShi = (nColunIndex-1)/26;
-	int nGe = (nColunIndex-1)%26;
-	CString strShi;
-	CString szCurCell;
-	if (nShi>0)
-	{
-		strShi.Format(_T("%c"),'A'+nShi-1);
-	}
-	szCurCell.Format(_T("%c%d"),'A'+nGe,nRowIndex);
-	szCurCell = strShi+szCurCell;
-
-	COleVariant vRow(szCurCell);
-	MSExcel::Range	range;
-	LPDISPATCH disp = m_worksheet.GetRange(vRow,vRow);
-	if (!disp)
-	{
-		return;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
 	m_nCurrentColumnIndex = nColunIndex;
 	m_nCurrentRowIndex = nRowIndex;
+	return TRUE;
 }
 
 void MSExcelBooster::NextColumn()
 {
-	MoveTo(m_nCurrentRowIndex,m_nCurrentColumnIndex+1);
+	m_nCurrentColumnIndex ++;
 }
 
 MSExcelBooster & MSExcelBooster::operator<<( const int value )
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	COleVariant newValue((long)value);
-	range.SetItem(oleRow,oleColumn,newValue);
+	CString sTemp;
+	sTemp.Format(_T("%d"),value);
+	SetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex,sTemp);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator<<( const short value )
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	COleVariant newValue(value);
-	range.SetItem(oleRow,oleColumn,newValue);
+	CString sTemp;
+	sTemp.Format(_T("%hd"),value);
+	SetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex,sTemp);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator<<( const double value )
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	COleVariant newValue(value);
-	range.SetItem(oleRow,oleColumn,newValue);
+	CString sTemp;
+	sTemp.Format(_T("%g"),value);
+	SetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex,sTemp);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator<<( const TCHAR *sValue)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	COleVariant newValue(sValue);
-	range.SetItem(oleRow,oleColumn,newValue);
+	CString sTemp;
+	sTemp.Format(_T("%s"),sValue);
+	SetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex,sTemp);
 	NextColumn();
 	return *this;
 }
+
+MSExcelBooster & MSExcelBooster::operator<<( const CString& sValue)
+{
+	SetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex,sValue);
+	NextColumn();
+	return *this;
+}
+
 MSExcelBooster & MSExcelBooster::operator>>(int &value)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	VARIANT	newvalue = range.GetItem(oleRow,oleColumn);
-	value = newvalue.intVal;
+	CString sValue = GetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex);
+	value = _ttoi(sValue);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator>>(long &value)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	VARIANT	newvalue = range.GetItem(oleRow,oleColumn);
-	value = newvalue.lVal;
+	CString sValue = GetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex);
+	value = _ttol(sValue);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator>>(short &value)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	VARIANT	newvalue = range.GetItem(oleRow,oleColumn);
-	value = newvalue.iVal;
+	CString sValue = GetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex);
+	value = (short)_ttoi(sValue);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator>>(double &value)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	VARIANT	newvalue = range.GetItem(oleRow,oleColumn);
-	value = newvalue.dblVal;
+	CString sValue = GetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex);
+	value = _tstof(sValue);
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator>>(TCHAR *sValue)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	VARIANT	newvalue = range.GetItem(oleRow,oleColumn);
-	sValue = newvalue.bstrVal;
+	CString sTemp = GetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex);
+	sValue = sTemp.GetBuffer(sTemp.GetLength());
 	NextColumn();
 	return *this;
 }
 MSExcelBooster & MSExcelBooster::operator>>(CString &sValue)
 {
-	LPDISPATCH disp = m_worksheet.GetUsedRange();
-	MSExcel::Range	range;
-	if (!disp)
-	{
-		return *this;
-	}
-	range.AttachDispatch(disp);
-	range.Activate();
-	long nRow = range.GetRow();
-	long nColumn = range.GetColumn();
-	COleVariant oleRow(nRow);
-	COleVariant oleColumn(nColumn);
-	VARIANT	newvalue = range.GetItem(oleRow,oleColumn);
-	sValue = newvalue.bstrVal;
+	sValue = GetCellValue(m_nCurrentRowIndex,m_nCurrentColumnIndex);
 	NextColumn();
 	return *this;
 }
 
-MSExcelBooster& MSExcelBooster::endl( MSExcelBooster &excel )
+MSExcelBooster& endl( MSExcelBooster &excel )
 {
-	
-	return *this;
+	excel.SetCurrentRowIndex(excel.GetCurrentRowIndex()+1);
+	excel.SetCurrentColumnIndex(1);
+	return excel;
 }
+
