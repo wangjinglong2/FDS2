@@ -309,15 +309,35 @@ void CCmdManager::boardReport()
 		return;
 	MSExcelBooster	excel;
 	excel.set_Visible(true);
-	excel.set_QuitFlag(true);
+	excel.SetDisplayAlerts(false);
 	if (!excel.InitExcelCOM())
 		return;
 	
 	//excel.OpenOneWorkSheets(_T("E:\\WSoftWare_Develop\\FDS2\\template\\testtmpl.xlt"));
 	excel.OpenExcelBook(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlt"));
 	excel.SetCurWorkSheet(1);
+	//excel.SetCurWorkSheet(2,_T("板件清单"));
+	//excel.SetCurWorkSheet(_T("test"));
 	excel.MoveTo(1,1);
 	excel <<1<<2<<3<<4<<5<<endl;
-	excel <<1<<2<<3<<4<<5<<endl;
+	excel <<2<<4<<6<<8<<10<<endl;
+	//excel.DeleteSheet(2);
+	//excel.AddSheet();
+	//excel.DeleteRow(1);
+	//excel.DeleteRows(1,2);
+	//excel.CopyRow(1,5);
+	//excel <<3<<5<<7<<9<<11<<endl;
+	//CString sCellPos = excel.GetCellPos(_T("测试单元格"));
+	int	iRow,iColumn;
+	if (excel.GetCellPos(_T("测试单元格"),iRow,iColumn))
+	{
+		excel.MoveTo(iRow,iColumn);
+		CString sPlace1 = excel.GetCellPos(iRow,iColumn);
+		CString sPlace2 = excel.GetCellPos(iRow,iColumn+1);
+		//excel.MergeCell(sPlace1,sPlace2);
+		//excel.FillMerge(_T("A5"),_T("B10"),_T("已替换"));
+		excel.InsertPicture(_T("A5"),_T("B10"),_T("C:\\Users\\admin\\Desktop\\board.jpg"),TRUE);
+	}
 	excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
+	//excel.Quit();
 }

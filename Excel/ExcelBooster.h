@@ -15,10 +15,10 @@ public:
 	void set_FilePath(const CString sFilePath){
 		m_sFilePath = sFilePath;
 	}
-	bool get_Visible(){
+	BOOL get_Visible(){
 		return m_bIsVisible;
 	}
-	void set_Visible(const bool bVisible){
+	void set_Visible(const BOOL bVisible){
 		m_bIsVisible = bVisible;
 	}
 	CString get_FontStyle(){
@@ -61,10 +61,14 @@ public:
 	long GetStartColumnIndex(){
 		return m_nStartColumnIndex;
 	}
+	void SetDisplayAlerts(BOOL bDisplayAlerts){
+		m_bDisplayAlerts = bDisplayAlerts;
+	}
 
 protected:
 	CString m_sFilePath;
-	bool m_bIsVisible;
+	BOOL m_bIsVisible;
+	BOOL m_bDisplayAlerts;
 	CString m_sFontStyle;
 	int m_nFontSize;
 	int m_nTotalSheet;
@@ -80,7 +84,6 @@ class MSExcelBooster : public ExcelBoosterBase
 public:
 	//	将光标转到指定表格单元
 	BOOL MoveTo(const long nRowIndex,const long nColunIndex);
-
 	//	转到下一列表格单元
 	void NextColumn();
 
@@ -101,10 +104,6 @@ public:
 	MSExcelBooster& operator >> (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
 	friend MSExcelBooster& endl(MSExcelBooster &excel);
 
-	//MSExcelBooster& operator << (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
-	//MSExcelBooster& operator >> (MSExcelBooster& (*op)(MSExcelBooster&)) {return (*op)(*this);}
-
-
 public:
 	//构造函数和解析函数
 	MSExcelBooster();
@@ -112,15 +111,25 @@ public:
 
 	//	返回值：-1：没有初始化COM!; 0：没有安装Excel2000!; 1：初始化成功。
 	BOOL InitExcelCOM();
-
+	BOOL Quit();
 	////	释放COM对象
 	//void ReleaseExcelCom();
 	BOOL OpenExcelBook(CString sFileName);
 	//void OpenOneWorkSheets(CString sFileName);
 	BOOL NewExcelBook();
 	BOOL OpenExcelApp();
+
 	//	设定当前表页
 	BOOL SetCurWorkSheet(int nCurSheet);
+	//设定当前表页，并命名
+	BOOL SetCurWorkSheet(int nCurSheet,const TCHAR *sSheetName);
+	//设定指定名称表页为当前表页
+	BOOL SetCurWorkSheet(const TCHAR *sSheetName);
+	//	删除指定表页
+	BOOL DeleteSheet(const short nItem);
+	//创建一个新的表页
+	BOOL AddSheet();
+
 	BOOL SaveExcel();
 	BOOL SaveAsExcel(CString sFileName);
 	BOOL SetCellValue(int row, int col,CString sValue,int Align=1);
@@ -129,37 +138,32 @@ public:
 	CString GetRowHeight(int row);
 	BOOL SetColumnWidth(int col,CString width);
 	CString GetColumnWidth(int col);
+	//根据行列指获取单元格位置
 	CString GetCellPos( int row, int col );
+	//得到内容为VAR的单元格地址
+	CString GetCellPos(const CString& var);
+	BOOL GetCellPos(const CString& var,int& iRow,int& iColumn);
 
-	////	设定当前表页，并且修改表页名称为指定名称
-	//BOOL SetCurWorkSheet(const TCHAR *sSheetName,int nCurSheet);
-	////  将指定表页名称的页面设为当前页面
-	//BOOL SetCurWorkSheet(const TCHAR *sSheetName);
-
-	////	删除指定表页
-	//BOOL DeleteSheet(const short nItem);
-
-	////创建一个新的表页
-	//void NewOneWorkSheets(const CString &sSheetName = _T(""));
-
-	////得到版本
-	//CString GetVersion();
-
+	//合并单元格
+	BOOL MergeCell(const CString& sPlace1,const CString& sPlace2);
+	//填充合并单元格内容
+	BOOL FillMerge(const CString &place1,const CString &place2,const CString &sText);
+	//插入图片
+	BOOL InsertPicture(const CString& sPlace1,const CString& sPlace2,const CString& sPicPath,BOOL bZoom,const int nGap = 0);
 public:
-//	//	删除指定行
-//	void DeleteRows(int nStartRow,int nEndRow);
-//
-//	//	得到合并单元的合并行数和列数
-//	BOOL GetMergeCount(const CString &sPlace,long &nColumn,long &nRow);
-//
-//	//	判断表格单元是否为合并的表格单元
-//	BOOL IsMergeCell(const CString &sPlace);
-//
-//	//	得到表格单元的颜色，返回为颜色索引
-//	int GetCellColorIndex(const CString &sPlace);
-//
-//	//	得到表格文本颜色，返回为RGB颜色
-//	COLORREF GetCellColor(const CString &sPlace);
+	//	删除指定行
+	BOOL DeleteRow(int nRow);
+	BOOL DeleteRows( int nStartRow,int nEndRow );
+	BOOL InsertRow(int nStartRow,int nRowCnt);
+	BOOL CopyRow(int nFromRow,int nToRow);
+
+	//	得到表格单元的颜色，返回为颜色索引
+	int GetCellColorIndex(const CString &sPlace);
+	BOOL SetCellColorIndex(const CString &sPlace,int colorindex);
+	//	得到行数
+	long GetUserRangeRowCount();
+	//	得到列数
+	long GetUseRangeColumnCount();
 //
 //	//	得到表格水平垂直方式
 //	//	返回或设置指定对象的垂直对齐方式。可为下列 XlVAlign 常量之一： 
@@ -258,10 +262,7 @@ public:
 //	BOOL SaveAs(CString szFileName);
 //	BOOL SaveAs(CString szFileName,const long xlFileFormat);
 //	void Quit();
-//	BOOL InsertRow(int nRow);
-//	BOOL DeleteRow(int nRow);
-//	BOOL CopyRow(int nFromRow,int nToRow);
-//	BOOL CopyInsertRow(int nRow, int count);
+
 //	long GetUsedRangeRow();
 //	CString GetCurCellPos();
 //	CString GetCellPos(int nRowIndex,int nColIndex);
