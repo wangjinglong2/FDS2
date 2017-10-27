@@ -57,27 +57,6 @@
     <ClCompile Include="Excel\ExcelBooster.cpp">
       <Filter>Excel</Filter>
     </ClCompile>
-    <ClCompile Include="Excel\UDExcelApp.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
-    <ClCompile Include="Excel\UDIDispath.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
-    <ClCompile Include="Excel\UDRange.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
-    <ClCompile Include="Excel\UDSheet.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
-    <ClCompile Include="Excel\UDSheets.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
-    <ClCompile Include="Excel\UDWorkbook.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
-    <ClCompile Include="Excel\UDWorkbooks.cpp">
-      <Filter>Excel</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FurnitureDesign.h">
@@ -123,30 +102,6 @@
       <Filter>Excel</Filter>
     </ClInclude>
     <ClInclude Include="Excel\ExcelBooster.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDExcelApp.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDIDispath.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDRange.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDSheet.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDSheets.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDTool.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDWorkbook.h">
-      <Filter>Excel</Filter>
-    </ClInclude>
-    <ClInclude Include="Excel\UDWorkbooks.h">
       <Filter>Excel</Filter>
     </ClInclude>
   </ItemGroup>

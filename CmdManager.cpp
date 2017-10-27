@@ -334,9 +334,25 @@ void CCmdManager::boardReport()
 		excel.MoveTo(iRow,iColumn);
 		CString sPlace1 = excel.GetCellPos(iRow,iColumn);
 		CString sPlace2 = excel.GetCellPos(iRow,iColumn+1);
-		//excel.MergeCell(sPlace1,sPlace2);
+		excel.MergeCell(sPlace1,sPlace2);
+		excel.FillMerge(sPlace1,sPlace2,_T("已替换"));
+		excel.SetCellFont(sPlace1,sPlace2,RGB(255,0,0));
+		excel.SetCellVerAlign(sPlace1,sPlace2,ExcelBoosterBase::VERCENALIGN);
+		excel.SetCellHorAlign(sPlace1,sPlace2,ExcelBoosterBase::HORCENALIGN);
+		excel.SetCellBkgColor(sPlace1,sPlace2,RGB(0,255,0));
+		excel.SetCellBorder(sPlace1,sPlace2,1);
 		//excel.FillMerge(_T("A5"),_T("B10"),_T("已替换"));
-		excel.InsertPicture(_T("A5"),_T("B10"),_T("C:\\Users\\admin\\Desktop\\board.jpg"),TRUE);
+		//excel.InsertPicture(_T("A5"),_T("B10"),_T("C:\\Users\\admin\\Desktop\\board.jpg"),TRUE);
+	}
+	//开始输出物料清单
+	excel.MoveTo(5,1);
+	for (int i = 0; i < idPartArray.length(); i ++)
+	{
+		Board	board;
+		board.FromObjectId(idPartArray[i]);
+		double	dLen,dWidth,dH;
+		board.GetDimension(dLen,dWidth,dH);
+		excel << board.GetPartName()<<board.GetPartNo()<<dLen<<dWidth<<dH<<endl;
 	}
 	excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
 	//excel.Quit();

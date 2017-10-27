@@ -2,15 +2,7 @@
 #include "ExcelBooster.h"
 #include "comutil.h"
 
-COleVariant covOptional((long)DISP_E_PARAMNOTFOUND, VT_ERROR);  
-long		xlUp = -4162; //移动方向
-long		xlDown = -4121;
-
-//m_ExlRge.AttachDispatch(m_ExlSheet.GetUsedRange());//加载已使用的单元格 
-//m_ExlRge.SetWrapText(_variant_t((long)1));//设置单元格内的文本为自动换行 
-////设置齐方式为水平垂直居中 
-////水平对齐：默认＝1,居中＝-4108,左＝-4131,右＝-4152 
-////垂直对齐：默认＝2,居中＝-4108,左＝-4160,右＝-4107 
+COleVariant covOptional((long)DISP_E_PARAMNOTFOUND, VT_ERROR); 
 
 MSExcelBooster::MSExcelBooster()
 {
@@ -404,7 +396,7 @@ BOOL MSExcelBooster::DeleteRow(int nRow)
 {
 	m_range.AttachDispatch( m_worksheet.GetRows() );
 	m_range.AttachDispatch( m_range.GetItem( COleVariant( (short)nRow ), vtMissing ).pdispVal );
-	m_range.Delete( COleVariant(xlUp) );
+	m_range.Delete( COleVariant((long)ExcelBoosterBase::xlUp) );
 	//m_nCurrentRowIndex--;
 	return TRUE;
 
@@ -421,7 +413,7 @@ BOOL MSExcelBooster::InsertRow( int nStartRow,int nRowCnt )
 	m_range.AttachDispatch( m_worksheet.GetRows() );
 	m_range.AttachDispatch( m_range.GetItem( COleVariant( (short)nStartRow ), vtMissing ).pdispVal );
 	for (int i = 1; i <= nRowCnt; i ++)
-		m_range.Insert(COleVariant(xlDown));
+		m_range.Insert(COleVariant((long)ExcelBoosterBase::xlDown));
 	return TRUE;
 }
 
@@ -440,21 +432,15 @@ BOOL MSExcelBooster::CopyRow( int nFromRow,int nToRow )
 	return TRUE;
 }
 
-int MSExcelBooster::GetCellColorIndex( const CString &sPlace )
+BOOL MSExcelBooster::SetCellFont( const CString &sPlace1,const CString &sPlace2,COLORREF color,BOOL bBold,BOOL bItalic)
 {
-	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace),COleVariant(sPlace)));
-	MSExcel::Font ft; 
-	ft.AttachDispatch(m_range.GetFont()); 
-	return (ft.GetColorIndex()).intVal;
-}
-
-
-BOOL MSExcelBooster::SetCellColorIndex( const CString &sPlace,int colorindex )
-{
-	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace),COleVariant(sPlace)));
-	MSExcel::Font ft; 
-	ft.AttachDispatch(m_range.GetFont()); 
-	ft.SetColorIndex(COleVariant((long)colorindex));
+	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace1),COleVariant(sPlace2)));
+	MSExcel::Font ft;
+	ft.AttachDispatch(m_range.GetFont());
+	ft.SetColor(COleVariant((long)color));
+	ft.SetBold(COleVariant((short)bBold));
+	ft.SetItalic(COleVariant((short)bItalic));  
+	ft.ReleaseDispatch();
 	return TRUE;
 }
 
@@ -480,6 +466,57 @@ long MSExcelBooster::GetUseRangeColumnCount()
 	colrange.ReleaseDispatch();
 	range.ReleaseDispatch();
 	return iColumn;
+}
+
+BOOL MSExcelBooster::SetCellVerAlign( const CString &sPlace1,const CString &sPlace2,const long nVerAlign )
+{
+	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace1),COleVariant(sPlace2)));
+	m_range.SetVerticalAlignment(COleVariant(nVerAlign));
+	return TRUE;
+}
+
+BOOL MSExcelBooster::SetCellHorAlign( const CString &sPlace1,const CString &sPlace2,const long nHorAlign )
+{
+	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace1),COleVariant(sPlace2)));
+	m_range.SetHorizontalAlignment(COleVariant(nHorAlign));
+	return TRUE;
+}
+
+MSExcel::Range MSExcelBooster::GetRange( const CString &sPlace1,const CString &sPlace2 )
+{
+	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace1),COleVariant(sPlace2)));
+	return m_range;
+}
+
+BOOL MSExcelBooster::SetCellBkgColor( const CString &sPlace1,const CString &sPlace2,COLORREF color )
+{
+	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace1),COleVariant(sPlace2)));
+	MSExcel::Interior it; 
+	it.AttachDispatch(m_range.GetInterior()); 
+	it.SetColor(COleVariant((long)color));
+	return TRUE;
+}
+
+BOOL MSExcelBooster::SetCellBorder( const CString &sPlace1,const CString &sPlace2,int color,const short nWeight/*=2*/,const short nLineStyle/*=1*/ )
+{
+	m_range.AttachDispatch(m_worksheet.GetRange(COleVariant(sPlace1),COleVariant(sPlace2)));
+	_variant_t  vRange1;   // 设置单元格的线；
+	_variant_t  vRange2;
+	_variant_t  vRange3;
+	_variant_t  vRange4;
+	// 线的样式：- no line; 1-solid; 2-big dot;3-small dot;4-dash dot; 5-dash dot dot;
+	vRange1.vt = VT_I2;
+	vRange1.lVal = nLineStyle; 
+	// 线的粗细程度
+	vRange2.vt = VT_I2;
+	vRange2.lVal = nWeight;
+	//线的颜色1-black;2-white;3-red;4-green;5-blue; 6-yellow; 7-pink;8-dark blue;
+	vRange3.vt = VT_I2;
+	vRange3.lVal = color;
+	vRange4.vt = VT_I2;
+	vRange4.lVal = RGB(0,0,0);
+	m_range.BorderAround(vRange1, vRange2, vRange3, vRange4);
+	return TRUE;
 }
 
 MSExcelBooster& endl( MSExcelBooster &excel )
