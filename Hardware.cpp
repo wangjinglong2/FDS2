@@ -33,6 +33,18 @@ struct resbuf* HardWare::PrepareXData()
 		AcDb::kDxfXdInteger16,m_bCallDwgBlock,
 		AcDb::kDxfXdAsciiString,m_sDwgName,
 		RTNONE);
+	//连接板件的句柄
+	while (pTemp->rbnext != NULL)
+		pTemp = pTemp->rbnext;
+	for (int i = 0; i < m_idFixBdArray.length(); i ++)
+	{
+		AcDbObjectId	idBd = m_idFixBdArray[i];;
+		AcDbHandle	handle = idBd.handle();
+		CString		sHandle;
+		handle.getIntoAsciiBuffer(sHandle.GetBuffer(_MAX_DIR));
+		pTemp->rbnext = acutBuildList(AcDb::kDxfXdAsciiString,sHandle,RTNONE);
+		pTemp = pTemp->rbnext;
+	}
 
 	return pXdata;
 }
@@ -216,6 +228,10 @@ BOOL BiasConnecter::PrepareHwData(Board& firstBd,Board& secondBd,BOOL bPosFace,d
 	mat.setToAlignCoordSys(AcGePoint3d(0,0,0),AcGeVector3d::kXAxis,AcGeVector3d::kYAxis,AcGeVector3d::kZAxis,
 		ptBiasBase,vecX,vecZ,-vecY);
 	m_matrix = mat;
+	m_ptBase = ptBiasBase;
+	m_ptX = m_ptBase + vecX * 1;
+	m_ptY = m_ptBase + vecZ * 1;
+	m_ptZ = m_ptBase + (-vecY) * 1;
 
 	return TRUE;
 }

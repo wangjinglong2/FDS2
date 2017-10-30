@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Board.h"
+#include "CommonUtilFun.h"
 
 IMPLEMENT_DYNAMIC(Board,FurniturePart)
 	int Board::g_nVersion = 1;
@@ -316,4 +317,15 @@ BOOL Board::GetBoardExtent( AcDbExtents& extent )
 	pEnt->getGeomExtents(extent);
 	pEnt->close();
 	return TRUE;
+}
+
+AcDbObjectIdArray Board::GetHardware()
+{
+	AcDbObjectIdArray	idAllHardwareArray;
+	CommonUtilFun::fds_ssGetPart(Fds::SS_HARDWARE,_T(""),TRUE,idAllHardwareArray);
+	for (int i = 0; i < idAllHardwareArray.length(); i ++)
+	{
+		AcDbObjectId	idHw = idAllHardwareArray[i];
+
+	}
 }

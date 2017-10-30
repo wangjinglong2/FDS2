@@ -26,6 +26,7 @@ public:
 	BOOL TransformBy(AcGeMatrix3d mat);
 	BOOL Highlight(BOOL bHighlight);
 	BOOL GetBoardExtent(AcDbExtents& extent);
+	AcDbObjectIdArray GetHardware();
 public:
 	virtual void GiDrawFace(int iFaceNo,int color);
 	virtual void GetFaceNo(int& iFaceNo);
@@ -39,5 +40,6 @@ protected:
 	double			m_dLength,m_dWidth,m_dThick;
 	AcDbObjectId	m_idBaseBd;
 	CArray<FdmCoordSystem,FdmCoordSystem&> m_pFixFaceArray;	//定位表面集
+	AcDbObjectIdArray	m_idHardwareArray;
 };
 

@@ -648,7 +648,7 @@ BOOL CommonUtilFun::GetEntityMaxMinPoint(const AcDbObjectId &objId,AcGePoint3d &
 
 	return state;
 }
-BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,AcDbObjectIdArray& idPartArray)
+BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,BOOL bAutoSelect,AcDbObjectIdArray& idPartArray)
 {
 	CString	sObjName;
 	if (ssType == Fds::SS_FURNITUREPART)
@@ -657,11 +657,14 @@ BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,AcDbOb
 		sObjName = _T("Board");
 	else if (ssType == Fds::SS_HARDWARE)
 		sObjName = _T("HardWare");
-
-	struct resbuf *rbGetObject=NULL;
+	ACHAR	sSelectType[5] = {0};
+	if (bAutoSelect)
+		_tcscpy(sSelectType,_T("X"));
+	else
+		_tcscpy(sSelectType,szPrompt);
 	AcDbObjectId Id;
 	ads_name ss;
-	int	iRet = acedSSGet(NULL,NULL,NULL,NULL,ss);
+	int	iRet = acedSSGet(sSelectType,NULL,NULL,NULL,ss);
 	if (iRet != RTNORM)
 		return FALSE;
 	long	nCount = 0;
@@ -671,6 +674,7 @@ BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,AcDbOb
 		acedSSFree(ss);
 		return FALSE;
 	}
+	struct resbuf *rbGetObject=NULL;
 	for (long i = 0;i < nCount; i ++)
 	{
 		ads_name	ent;
