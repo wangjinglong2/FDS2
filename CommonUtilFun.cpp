@@ -660,8 +660,6 @@ BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,BOOL b
 	ACHAR	sSelectType[5] = {0};
 	if (bAutoSelect)
 		_tcscpy(sSelectType,_T("X"));
-	else
-		_tcscpy(sSelectType,szPrompt);
 	AcDbObjectId Id;
 	ads_name ss;
 	int	iRet = acedSSGet(sSelectType,NULL,NULL,NULL,ss);

@@ -19,7 +19,7 @@ private:
 
 class FurniturePart:public CObject
 {
-	DECLARE_DYNAMIC(FurniturePart)
+	DECLARE_DYNCREATE(FurniturePart)
 	static int g_nVersion;//版本号
 public:
 	FurniturePart(void);
@@ -46,5 +46,11 @@ protected:
 	AcDbObjectId	m_id;
 	CString			m_sPartName;
 	CString			m_sPartNo;
+	CString			m_sPartClsName; //零件的类名
 	struct resbuf*	m_pBufHead;
 };
+
+BOOL GetPartClsName(AcDbObjectId idPart,TCHAR* sClsName);
+void *FDS_GetPartBasePtr(AcDbObjectId PartId);
+CRuntimeClass* MyFromName(LPCSTR lpszClassName);
+BOOL FDS_OpenPart(FurniturePart*& pPart,AcDbObjectId idPart);

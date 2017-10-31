@@ -2,3 +2,4 @@
 #define RC(classname) RUNTIME_CLASS(classname)
 #define EPSILON	1e-5
 #define fds_equal(a,b)	fabs((a) - (b)) < EPSILON
+#define FDSAPPNAME	_T("Fur_Design")

@@ -9,6 +9,7 @@ Board::Board( void )
 	m_dLength = 0.0;
 	m_dWidth  = 0.0;
 	m_dThick  = 0.0;
+	m_sPartClsName = CString(RC(Board)->m_lpszClassName);
 }
 
 Board::~Board( void )
@@ -328,4 +329,5 @@ AcDbObjectIdArray Board::GetHardware()
 		AcDbObjectId	idHw = idAllHardwareArray[i];
 
 	}
+	return idAllHardwareArray;
 }

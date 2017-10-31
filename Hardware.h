@@ -29,7 +29,7 @@ protected:
 
 class BiasConnecter:public HardWare
 {
-	DECLARE_DYNAMIC(BiasConnecter)
+	DECLARE_SERIAL(BiasConnecter)
 	static int	g_nVersion;
 public:
 	BiasConnecter(void);

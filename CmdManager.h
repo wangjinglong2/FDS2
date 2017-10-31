@@ -14,5 +14,6 @@ public:
 	static void setBoardUCS();
 	static void boardViewPort();
 	static void boardReport();
+	static void openHardware();
 };
 

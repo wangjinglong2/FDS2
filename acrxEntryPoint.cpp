@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "CmdManager.h"
+#include "Furniture.h"
 
 void InitApplication();
 void UnInitApplication();
@@ -39,7 +40,7 @@ void RegisterCommand()
 	cmdStack->addCommand(_T("Design"),_T("setboarducs"),_T("setboarducs"),ACRX_CMD_MODAL,&CCmdManager::setBoardUCS);
 	cmdStack->addCommand(_T("Design"),_T("boardviewport"),_T("boardviewport"),ACRX_CMD_MODAL,&CCmdManager::boardViewPort);
 	cmdStack->addCommand(_T("Design"),_T("boardreport"),_T("boardreport"),ACRX_CMD_MODAL,&CCmdManager::boardReport);
-
+	cmdStack->addCommand(_T("Design"),_T("openhardware"),_T("openhardware"),ACRX_CMD_MODAL,&CCmdManager::openHardware);
 }
 void unRegisterCommand()
 {
@@ -49,6 +50,8 @@ void unRegisterCommand()
 void InitApplication()
 {
 	RegisterCommand();
+	//×¢²áÎå½ğÀà
+
 }
 
 void UnInitApplication()

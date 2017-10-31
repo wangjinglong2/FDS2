@@ -111,7 +111,6 @@ BOOL FdmCoordSystem::GetCoordSystem( AcGePoint3d& ptOrg,AcGePoint3d& ptX,AcGePoi
 
 IMPLEMENT_DYNAMIC(FurniturePart,CObject)
 
-static CString	sFurPartApp = _T("Fur_Design");
 int FurniturePart::g_nVersion = 1;
 FurniturePart::FurniturePart(void)
 {
@@ -125,13 +124,14 @@ FurniturePart::~FurniturePart(void)
 
 struct resbuf* FurniturePart::PrepareXData()
 {
-	acdbRegApp(sFurPartApp);
+	acdbRegApp(FDSAPPNAME);
 	resbuf*	pbuf = acutBuildList
-		(AcDb::kDxfRegAppName,sFurPartApp,
+		(AcDb::kDxfRegAppName,FDSAPPNAME,
 		AcDb::kDxfXdAsciiString,CString(RC(FurniturePart)->m_lpszClassName),
 		AcDb::kDxfXdInteger32,g_nVersion,
 		AcDb::kDxfXdAsciiString,m_sPartName,
 		AcDb::kDxfXdAsciiString,m_sPartNo,
+		AcDb::kDxfXdAsciiString,m_sPartClsName,
 		RTNONE);
 	return pbuf;
 }
@@ -154,7 +154,7 @@ BOOL FurniturePart::GetObjectXData( AcDbObjectId idPart,struct resbuf *&pBuf )
 	AcDbEntity*	pEnt = DbUtil.openAcDbEntity(idPart,AcDb::kForRead);
 	if (pEnt == NULL)
 		return FALSE;
-	pBuf = pEnt->xData(sFurPartApp);
+	pBuf = pEnt->xData(FDSAPPNAME);
 	m_pBufHead = pBuf;
 	pEnt->close();
 	if (pBuf == NULL)
@@ -173,6 +173,10 @@ BOOL FurniturePart::GetObjectXData( AcDbObjectId idPart,struct resbuf *&pBuf )
 	//代号
 	if (pBuf->restype == AcDb::kDxfXdAsciiString)
 		m_sPartNo = pBuf->resval.rstring;
+	pBuf = pBuf->rbnext;
+	//零件类名称
+	if (pBuf->restype == AcDb::kDxfXdAsciiString)
+		m_sPartClsName = pBuf->resval.rstring;
 	pBuf = pBuf->rbnext;
 	m_id = idPart;
 	return TRUE;
@@ -214,4 +218,89 @@ void FurniturePart::Update()
 		return;
 	Acad::ErrorStatus es = pEnt->setXData(pBuf);
 	es = pEnt->close();
+}
+
+CRuntimeClass* MyFromName(LPCSTR lpszClassName)
+{
+	CRuntimeClass* pClass=NULL;
+	//	ENSURE(lpszClassName);
+	// search app specific classes
+	AFX_MODULE_STATE* pModuleState = AfxGetModuleState();
+	//	AfxLockGlobals(0);
+	for (pClass = pModuleState->m_classList; pClass != NULL;
+		pClass = pClass->m_pNextClass)
+	{
+		//		acutPrintf(CString(_T("\n"))+pClass->m_lpszClassName);
+		if (lstrcmpiA(lpszClassName, pClass->m_lpszClassName) == 0)
+		{
+			//			AfxUnlockGlobals(0);
+			return pClass;
+		}
+	}
+	//	AfxUnlockGlobals(0);
+#ifdef _AFXDLL
+	// search classes in shared DLLs
+	//	AfxLockGlobals(CRIT_DYNLINKLIST);
+	for (CDynLinkLibrary* pDLL = pModuleState->m_libraryList; pDLL != NULL;
+		pDLL = pDLL->m_pNextDLL)
+	{
+		for (pClass = pDLL->m_classList; pClass != NULL;
+			pClass = pClass->m_pNextClass)
+		{
+						acutPrintf(CString(_T("\n1 "))+pClass->m_lpszClassName);
+						if (lstrcmpiA(lpszClassName, pClass->m_lpszClassName) == 0)
+			{
+				//				AfxUnlockGlobals(CRIT_DYNLINKLIST);
+				return pClass;
+			}
+		}
+	}
+	//	AfxUnlockGlobals(CRIT_DYNLINKLIST);
+#endif
+	return NULL; // not found
+}
+void *FDS_GetPartBasePtr(AcDbObjectId PartId)
+{
+	if (PartId.isNull())
+		return NULL;
+	FurniturePart *pPart=NULL;
+	TCHAR ClassName[200] = {0};
+	if(GetPartClsName(PartId,ClassName))
+	{
+		CRuntimeClass* pRc = MyFromName(CStringA(ClassName));
+		if (pRc)
+		{
+			pPart = (FurniturePart*)pRc->CreateObject();
+			return (void*)pPart;
+		}
+		else 
+		{
+			AfxMessageBox(CString(ClassName));
+		}
+	}
+	return (void*)pPart;
+}
+BOOL GetPartClsName(AcDbObjectId idPart,TCHAR* sClsName)
+{
+	AcDbEntity*	pEnt = DbUtil.openAcDbEntity(idPart);
+	struct resbuf* pPartXdata = pEnt->xData(FDSAPPNAME);
+	pEnt->close();
+	if (pPartXdata == NULL)
+		return FALSE;
+	int	iPos = 5;
+	struct resbuf* pTemp = pPartXdata;
+	while (iPos --)
+		pTemp = pTemp->rbnext;
+	_tcscpy(sClsName,pTemp->resval.rstring);
+	acutRelRb(pPartXdata);
+	return TRUE;
+}
+
+BOOL FDS_OpenPart( FurniturePart*& pPart,AcDbObjectId idPart )
+{
+	pPart = (FurniturePart*)FDS_GetPartBasePtr(idPart);
+	if (pPart == NULL)
+		return FALSE;
+	pPart->FromObjectId(idPart);
+	return TRUE;
 }

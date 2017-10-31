@@ -38,7 +38,7 @@ void CCmdManager::createFrame()
 {
 	//创建左侧板
 	CString	sPartName,sLayer;
-	sPartName = _T("");
+	sPartName = _T("左侧板");
 	sLayer = _T("");
 	AcGePoint3d	ptOrg;
 	ptOrg = AcGePoint3d(0,0,0);
@@ -53,6 +53,7 @@ void CCmdManager::createFrame()
 	vecY = AcGeVector3d(0,0,1);
 	vecZ = AcGeVector3d(-1,0,0);
 	ptOrg = AcGePoint3d(1000,0,0);
+	sPartName = _T("右侧板");
 	CommonUtilFun::CreateBoard(sPartName,sLayer,ptOrg,vecX,vecY,vecZ,dLen,dWidth,dThick);
 	//创建顶板
 	vecX = AcGeVector3d(1,0,0);
@@ -61,10 +62,12 @@ void CCmdManager::createFrame()
 	ptOrg = AcGePoint3d(-16,0,800);
 	dLen = 1016;
 	dWidth = 500;
+	sPartName = _T("顶板");
 	CommonUtilFun::CreateBoard(sPartName,sLayer,ptOrg,vecX,vecY,vecZ,dLen,dWidth,dThick);
 	//创建底板
 	ptOrg = AcGePoint3d(-16,0,-16);
 	dLen = 1016;
+	sPartName = _T("底板");
 	CommonUtilFun::CreateBoard(sPartName,sLayer,ptOrg,vecX,vecY,vecZ,dLen,dWidth,dThick);
 }
 
@@ -305,7 +308,7 @@ void CCmdManager::boardViewPort()
 void CCmdManager::boardReport()
 {
 	AcDbObjectIdArray	idPartArray;
-	if (!CommonUtilFun::fds_ssGetPart(Fds::SS_FURNITUREPART,_T("请选择需要输出的板件和五金:\n"),idPartArray))
+	if (!CommonUtilFun::fds_ssGetPart(Fds::SS_FURNITUREPART,_T("请选择需要输出的板件和五金:\n"),FALSE,idPartArray))
 		return;
 	MSExcelBooster	excel;
 	excel.set_Visible(true);
@@ -356,4 +359,39 @@ void CCmdManager::boardReport()
 	}
 	excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
 	//excel.Quit();
+}
+
+void CCmdManager::openHardware()
+{
+	AcDbObjectIdArray	idPartArray;
+	if (!CommonUtilFun::fds_ssGetPart(Fds::SS_HARDWARE,_T("请选择五金:\n"),FALSE,idPartArray))
+		return;
+	MSExcelBooster	excel;
+	excel.set_Visible(true);
+	excel.SetDisplayAlerts(false);
+	if (!excel.InitExcelCOM())
+		return;
+
+	//excel.OpenOneWorkSheets(_T("E:\\WSoftWare_Develop\\FDS2\\template\\testtmpl.xlt"));
+	excel.OpenExcelBook(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlt"));
+	excel.SetCurWorkSheet(1);
+	//excel.SetCurWorkSheet(2,_T("板件清单"));
+	//excel.SetCurWorkSheet(_T("test"));
+	excel.MoveTo(1,1);
+	excel <<1<<2<<3<<4<<5<<endl;
+	excel <<2<<4<<6<<8<<10<<endl;
+
+	for (int i = 0; i < idPartArray.length(); i ++)
+	{
+		AcDbObjectId	idHw = idPartArray[i];
+		FurniturePart*	pPart = NULL;
+		if (!FDS_OpenPart(pPart,idHw))
+			return;
+		if (pPart->fdmIsKindOf(RC(HardWare)))
+		{
+			HardWare*	pHw = (HardWare*)pPart;
+			excel << pHw->GetPartNo() << pHw->GetPartName()<<endl;
+		}
+	}
+	excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
 }

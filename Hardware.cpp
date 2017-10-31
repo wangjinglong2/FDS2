@@ -7,6 +7,7 @@ IMPLEMENT_DYNAMIC(HardWare,FurniturePart)
 	HardWare::HardWare()
 {
 	m_bCallDwgBlock = FALSE;
+	m_sPartClsName = CString(RC(HardWare)->m_lpszClassName);
 }
 
 HardWare::~HardWare()
@@ -103,7 +104,7 @@ BOOL HardWare::PrePareObject()
 }
 
 int	BiasConnecter::g_nVersion = 1;
-IMPLEMENT_DYNAMIC(BiasConnecter,HardWare)
+IMPLEMENT_SERIAL(BiasConnecter,HardWare,1)
 BiasConnecter::BiasConnecter(void)
 {
 	m_sDwgName = _T("Biasconnecter.dwg");
@@ -115,6 +116,7 @@ BiasConnecter::BiasConnecter(void)
 	m_biasData.m_depth3 = 12;
 	m_biasData.m_depth4 = 25;
 	m_biasData.m_offset = 9;
+	m_sPartClsName = CString(RC(BiasConnecter)->m_lpszClassName);
 }
 
 
