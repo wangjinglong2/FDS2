@@ -85,6 +85,8 @@ void CCmdManager::fixHardware()
 
 	BiasConnecter	bias;
 	bias.PrepareHwData(firstBoard,secondBoard,FALSE,200);
+	bias.SetPartName(_T("三合一"));
+	bias.SetPartNo(_T("23x34"));
 	bias.Rebulid();
 	CommonUtilFun::HighlightObj(idFirstBd,FALSE);
 	CommonUtilFun::HighlightObj(idSecondBd,FALSE);
@@ -372,8 +374,8 @@ void CCmdManager::openHardware()
 	if (!excel.InitExcelCOM())
 		return;
 
-	//excel.OpenOneWorkSheets(_T("E:\\WSoftWare_Develop\\FDS2\\template\\testtmpl.xlt"));
-	excel.OpenExcelBook(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlt"));
+	excel.OpenExcelBook(_T("E:\\WSoftWare_Develop\\FDS\\template\\testtmpl.xlt"));
+	//excel.OpenExcelBook(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlt"));
 	excel.SetCurWorkSheet(1);
 	//excel.SetCurWorkSheet(2,_T("板件清单"));
 	//excel.SetCurWorkSheet(_T("test"));
@@ -392,6 +394,9 @@ void CCmdManager::openHardware()
 			HardWare*	pHw = (HardWare*)pPart;
 			excel << pHw->GetPartNo() << pHw->GetPartName()<<endl;
 		}
+		delete pPart;
+		pPart = NULL;
 	}
-	excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
+	//excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
+	excel.SaveAsExcel(_T("E:\\WSoftWare_Develop\\FDS\\template\\test.xlsx"));
 }

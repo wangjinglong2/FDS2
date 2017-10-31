@@ -98,15 +98,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\ObjectARX\Arx2007\inc;E:\WJL\sdk\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\ObjectArx\ObjectARX2007\inc;..\FdsSdk\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>.\FurnitureDesign.def</ModuleDefinitionFile>
-      <OutputFile>C:\Furniture\FurnitureDesign.arx</OutputFile>
-      <AdditionalLibraryDirectories>D:\ObjectARX\Arx2007\lib;E:\WJL\sdk\lib\2007;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>C:\arx\FurnitureDesign.arx</OutputFile>
+      <AdditionalLibraryDirectories>E:\ObjectArx\ObjectARX2007\lib;..\FdsSdk\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ARXUtil.lib</AdditionalDependencies>
     </Link>
     <Midl>
