@@ -166,7 +166,7 @@ BOOL BiasConnecter::Rebulid()
 
 BOOL BiasConnecter::getDwgPath(CString& sDwgPath)
 {
-	CString	sAppPath = _T("E:\\WJL\\FurnitureDesign\\hwdwg\\");
+	CString	sAppPath = _T("E:\\WSoftWare_Develop\\FDS\\hwdwg\\");
 	sDwgPath = sAppPath + m_sDwgName;
 	return TRUE;
 }

@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "CmdManager.h"
 #include "Furniture.h"
+#include "Hardware.h"
 
 void InitApplication();
 void UnInitApplication();
@@ -51,7 +52,7 @@ void InitApplication()
 {
 	RegisterCommand();
 	//×¢²áÎå½ðÀà
-
+	AfxClassInit(RC(BiasConnecter));
 }
 
 void UnInitApplication()

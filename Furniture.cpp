@@ -187,6 +187,13 @@ BOOL FurniturePart::fdmIsKindOf( const CRuntimeClass* pClass ) const
 	CRuntimeClass* pRunClass = this->GetRuntimeClass();
 	if (pRunClass == pClass)
 		return TRUE;
+	CRuntimeClass* pParentClass = pRunClass->m_pfnGetBaseClass();
+	while (pParentClass != NULL)
+	{
+		if (pParentClass == pClass)
+			return TRUE;
+		pParentClass = pParentClass->m_pfnGetBaseClass();
+	}
 	return FALSE;
 }
 
@@ -247,7 +254,7 @@ CRuntimeClass* MyFromName(LPCSTR lpszClassName)
 		for (pClass = pDLL->m_classList; pClass != NULL;
 			pClass = pClass->m_pNextClass)
 		{
-						acutPrintf(CString(_T("\n1 "))+pClass->m_lpszClassName);
+						//acutPrintf(CString(_T("\n1 "))+pClass->m_lpszClassName);
 						if (lstrcmpiA(lpszClassName, pClass->m_lpszClassName) == 0)
 			{
 				//				AfxUnlockGlobals(CRIT_DYNLINKLIST);
