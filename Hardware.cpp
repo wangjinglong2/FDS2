@@ -37,7 +37,11 @@ struct resbuf* HardWare::PrepareXData()
 	//连接板件的句柄
 	while (pTemp->rbnext != NULL)
 		pTemp = pTemp->rbnext;
-	for (int i = 0; i < m_idFixBdArray.length(); i ++)
+	//连接板件数目
+	int		iBdCount = m_idFixBdArray.length();
+	pTemp->rbnext = acutBuildList(AcDb::kDxfXdInteger32,iBdCount,RTNONE);
+	pTemp = pTemp->rbnext;
+	for (int i = 0; i < iBdCount; i ++)
 	{
 		AcDbObjectId	idBd = m_idFixBdArray[i];;
 		AcDbHandle	handle = idBd.handle();
@@ -90,7 +94,26 @@ BOOL HardWare::GetObjectXData( AcDbObjectId idPart,struct resbuf *&pBuf )
 	if (pBuf->restype == AcDb::kDxfXdAsciiString)
 		m_sDwgName = pBuf->resval.rstring;
 	pBuf = pBuf->rbnext;
-
+	//板件数目
+	int		iBdCount = 0;
+	if (pBuf->restype == AcDb::kDxfXdInteger32)
+		iBdCount = pBuf->resval.rint;
+	pBuf = pBuf->rbnext;
+	//连接板件的句柄
+	AcDbDatabase*	pCurDb = acdbCurDwg();
+	m_idFixBdArray.removeAll();
+	for (int i = 0; i < iBdCount; i ++)
+	{
+		CString sHandle;
+		if (pBuf->restype == AcDb::kDxfXdAsciiString)
+			sHandle = pBuf->resval.rstring;
+		AcDbObjectId	idTemp;
+		AcDbHandle		handle(sHandle);
+		pCurDb->getAcDbObjectId(idTemp,false,handle);
+		if (idTemp.isValid())
+			m_idFixBdArray.append(idTemp);
+		pBuf = pBuf->rbnext;
+	}
 	PrePareObject();
 	return TRUE;
 }
