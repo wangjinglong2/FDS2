@@ -20,11 +20,15 @@ protected:
 	virtual struct resbuf* PrepareXData();
 	virtual BOOL GetObjectXData(AcDbObjectId idPart,struct resbuf *&xdata);
 	virtual BOOL PrePareObject();
+	virtual BOOL GetHoles(CArray<Hole,Hole&>& holes){return TRUE;};
+	virtual BOOL GetBoardHoles(AcDbObjectId idBoard,CArray<Hole,Hole&>& holes){return TRUE;};
 protected:
 	AcGePoint3d m_ptBase,m_ptX,m_ptY,m_ptZ;	
 	BOOL m_bCallDwgBlock;
 	CString m_sDwgName;	
 	AcDbObjectIdArray	m_idFixBdArray;
+	CArray<Hole,Hole&>	m_holes;	//所有的孔位数据
+
 };
 
 class BiasConnecter:public HardWare
@@ -36,6 +40,8 @@ public:
 	~BiasConnecter(void);
 	BOOL PrepareHwData(Board& firstBd,Board& secondBd,BOOL bPosFace,double dLayDist);
 	virtual BOOL Rebulid();
+	virtual BOOL GetHoles(CArray<Hole,Hole&>& holes);
+	virtual BOOL GetBoardHoles(AcDbObjectId idBoard,CArray<Hole,Hole&>& holes);
 protected:
 	BOOL getDwgPath(CString& sDwgPath);
 	BOOL HasBlock(CString szRecordName,AcDbObjectId & id);

@@ -27,5 +27,6 @@ public:
 	static void AgainRestoreVportOriginZoom(const ads_name Set,BOOL isZoom);
 	static BOOL GetEntityMaxMinPoint(const AcDbObjectId &objId,AcGePoint3d &maxPoint,AcGePoint3d &minPoint);
 	static BOOL fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,BOOL bAutoSelect,AcDbObjectIdArray& idPartArray);
+	static BOOL fds_GetSystemPath(CString& sSystemPath);
 };
 

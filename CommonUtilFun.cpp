@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "CommonUtilFun.h"
-
+#include "FurnitureDesign.h"
 
 CommonUtilFun::CommonUtilFun(void)
 {
@@ -705,5 +705,22 @@ BOOL CommonUtilFun::fds_ssGetPart(Fds::SS_GetType ssType,CString szPrompt,BOOL b
 		ads_ssfree(ent);
 	}
 	ads_ssfree(ss);
+	return TRUE;
+}
+extern CFurnitureDesignApp theApp;
+BOOL CommonUtilFun::fds_GetSystemPath(CString& sSystemPath)
+{
+	CString sAppName;
+	sAppName.Format(_T("%s.arx"),theApp.m_pszAppName);
+	HMODULE hModule=GetModuleHandle(sAppName);
+	if (hModule == NULL)
+		return FALSE;
+	TCHAR modulePath[512];
+	DWORD pathLength = GetModuleFileName(hModule, modulePath, 512);
+	sSystemPath.Format(_T("%s"),modulePath);
+	int	iPos = sSystemPath.ReverseFind('\\');
+	if (iPos <= 0)
+		return FALSE;
+	sSystemPath = sSystemPath.Left(iPos+1);
 	return TRUE;
 }

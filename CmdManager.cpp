@@ -87,6 +87,10 @@ void CCmdManager::fixHardware()
 	bias.PrepareHwData(firstBoard,secondBoard,FALSE,200);
 	bias.SetPartName(_T("三合一"));
 	bias.SetPartNo(_T("23x34"));
+	AcDbObjectIdArray	idFixBds;
+	idFixBds.append(idFirstBd);
+	idFixBds.append(idSecondBd);
+	bias.SetFixBdArray(idFixBds);
 	bias.Rebulid();
 	CommonUtilFun::HighlightObj(idFirstBd,FALSE);
 	CommonUtilFun::HighlightObj(idSecondBd,FALSE);
@@ -374,7 +378,13 @@ void CCmdManager::openHardware()
 	if (!excel.InitExcelCOM())
 		return;
 
-	excel.OpenExcelBook(_T("E:\\WSoftWare_Develop\\FDS\\template\\testtmpl.xlt"));
+	CString sSystemPath;
+	if (!CommonUtilFun::fds_GetSystemPath(sSystemPath))
+		return ;
+	CString sFilePath;
+	sFilePath = sSystemPath + _T("template\\test.xlt");
+	if (!excel.OpenExcelBook(sFilePath))
+		return;
 	//excel.OpenExcelBook(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlt"));
 	excel.SetCurWorkSheet(1);
 	//excel.SetCurWorkSheet(2,_T("板件清单"));
@@ -398,5 +408,9 @@ void CCmdManager::openHardware()
 		pPart = NULL;
 	}
 	//excel.SaveAsExcel(_T("E:\\WJL\\githubcode\\FDS\\FDS2\\template\\test.xlsx"));
-	excel.SaveAsExcel(_T("E:\\WSoftWare_Develop\\FDS\\template\\test.xlsx"));
+	CString sSavePath;
+	sSavePath.Format(_T("%s%s"),sSystemPath,_T("template\\test.xlsx"));
+	excel.SaveAsExcel(sSavePath);
+
+	return;
 }

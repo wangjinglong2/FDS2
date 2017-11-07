@@ -166,8 +166,10 @@ BOOL BiasConnecter::Rebulid()
 
 BOOL BiasConnecter::getDwgPath(CString& sDwgPath)
 {
-	CString	sAppPath = _T("E:\\WSoftWare_Develop\\FDS\\hwdwg\\");
-	sDwgPath = sAppPath + m_sDwgName;
+	CString sSystemPath;
+	if (!CommonUtilFun::fds_GetSystemPath(sSystemPath))
+		return FALSE;
+	sDwgPath = sSystemPath +  _T("hwdwg\\") + m_sDwgName;
 	return TRUE;
 }
 Acad::ErrorStatus  BiasConnecter::addBlkRecordFromDWG(CString szDwgPathName,AcDbObjectId& idBlockRecord,CString szBlkName)
@@ -333,3 +335,43 @@ BOOL BiasConnecter::PrePareObject()
 		return FALSE;
 	return TRUE;
 }
+
+BOOL BiasConnecter::GetHoles( CArray<Hole,Hole&>& holes )
+{
+	holes.RemoveAll();
+	AcGeVector3d	vecX,vecY,vecZ;
+	vecX = m_ptX - m_ptBase;
+	vecY = m_ptY - m_ptBase;
+	vecZ = m_ptZ - m_ptBase;
+	//Æ«ÐÄ¼þ¿×
+	Hole	biasHole,connectHole,embeddedHole;
+	biasHole.dRadius = m_biasData.m_d1;
+	biasHole.dDepth = m_biasData.m_depth1;
+	biasHole.m_sHWClassName = m_sPartClsName;
+	biasHole.pt[0] = m_ptBase + vecZ * m_biasData.m_offset;
+	biasHole.pt[1] = m_ptBase - vecZ * (m_biasData.m_depth1 - m_biasData.m_offset);
+	holes.Add(biasHole);
+	m_holes.Add(biasHole);
+	connectHole.dRadius = m_biasData.m_d2;
+	connectHole.dDepth  = m_biasData.m_depth4;
+	connectHole.m_sHWClassName = m_sPartClsName;
+	connectHole.pt[0] = m_ptBase + vecY * m_biasData.m_depth4;
+	connectHole.pt[1] = m_ptBase;
+	holes.Add(connectHole);
+	m_holes.Add(connectHole);
+	embeddedHole.dRadius = m_biasData.m_d3;
+	embeddedHole.dDepth = m_biasData.m_depth3;
+	embeddedHole.m_sHWClassName = m_sPartClsName;
+	embeddedHole.pt[0] = m_ptBase + vecY * m_biasData.m_depth4;
+	embeddedHole.pt[1] = m_ptBase + vecY * (m_biasData.m_depth4 + m_biasData.m_depth3);
+	holes.Add(embeddedHole);
+	m_holes.Add(embeddedHole);
+	return TRUE;
+}
+
+BOOL BiasConnecter::GetBoardHoles( AcDbObjectId idBoard,CArray<Hole,Hole&>& holes )
+{
+	holes.RemoveAll();
+
+}
+ 
